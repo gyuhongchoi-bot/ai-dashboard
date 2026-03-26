@@ -382,7 +382,7 @@ export default function Dashboard() {
         <KPI label="GA4 세션" value={TGa4.sessions.toLocaleString()} sub={`${TGa4.users}명 방문`} color={C.ga4} tip="웹사이트 방문 횟수입니다. 한 사용자가 여러 세션을 가질 수 있습니다. 30분 이상 비활성 시 새 세션으로 집계됩니다." />
         <KPI label="전환" value={TGa4.conv.toString()} sub={`전환율 ${TGa4.sessions > 0 ? (TGa4.conv/TGa4.sessions*100).toFixed(1) : 0}%`} color={C.up} tip="GA4에서 설정한 목표 행동(지원서 제출, 버튼 클릭 등)을 완료한 횟수입니다. 전환율 = 전환수 ÷ 세션수." />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 14, marginBottom: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 14, marginBottom: 14 }}>
         <Crd title="플랫폼별 지출" tip="LinkedIn과 Meta 각각의 광고비 비중입니다. 어느 플랫폼에 예산이 더 집중되었는지 확인할 수 있습니다.">
           <ResponsiveContainer width="100%" height={190}>
             <PieChart><Pie data={[{ name: "LinkedIn", value: TLi.spend },{ name: "Meta", value: TMeta.spend }]} cx="50%" cy="50%" innerRadius={48} outerRadius={74} dataKey="value" stroke="none">
@@ -542,7 +542,7 @@ export default function Dashboard() {
           <KPI label="평균 체류시간" value={`${Math.floor(ad/60)}분 ${Math.round(ad%60)}초`} color={C.up} tip="사용자가 사이트에 머문 평균 시간입니다. 길수록 콘텐츠에 관심을 보인다는 의미입니다." />
           <KPI label="전환" value={tc.toString()} sub={`전환율 ${(tc/ts*100).toFixed(1)}%`} color={C.up} tip="GA4에서 설정한 전환 이벤트(지원서 제출 등)가 발생한 횟수입니다." />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 14, marginBottom: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 14, marginBottom: 14 }}>
           <Crd title="트래픽 소스 비중" tip="어떤 경로로 사이트에 유입되었는지 비율을 보여줍니다. 광고(paid)와 자연유입(organic)의 비중을 비교할 수 있습니다.">
             <ResponsiveContainer width="100%" height={220}>
               <PieChart><Pie data={ga4Data.map(d => ({ name: d.label, value: d.sessions }))} cx="50%" cy="50%" innerRadius={42} outerRadius={72} dataKey="value" stroke="none">
@@ -600,7 +600,7 @@ export default function Dashboard() {
     <div style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "'Outfit', 'Pretendard', -apple-system, sans-serif" }}>
       <GlobalTooltip />
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
-      <div style={{ maxWidth: 1120, margin: "0 auto", padding: "20px 20px 40px" }}>
+      <div style={{ width: "100%", margin: "0 auto", padding: "20px 40px 40px", boxSizing: "border-box" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22, paddingBottom: 18, borderBottom: `1px solid ${C.border}`, flexWrap: "wrap", gap: 12 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
