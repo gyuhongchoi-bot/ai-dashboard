@@ -597,7 +597,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "'Outfit', 'Pretendard', -apple-system, sans-serif" }}>
+    <div style={{ background: C.bg, color: C.text, fontFamily: "'Outfit', 'Pretendard', -apple-system, sans-serif" }}>
       <GlobalTooltip />
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
       <div style={{ width: "100%", margin: "0 auto", padding: "20px 60px 40px" }}>
