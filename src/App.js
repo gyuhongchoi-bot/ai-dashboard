@@ -163,13 +163,13 @@ const GlobalTooltip = () => {
 };
 
 const KPI = ({ label, value, sub, color, tip }) => (
-  <div style={{ background: C.card, borderRadius: 12, padding: "18px 20px", border: `1px solid ${C.border}`, flex: 1, minWidth: 148, transition: "border-color 0.2s" }}
+  <div style={{ background: C.card, borderRadius: 14, padding: "22px 24px", border: `1px solid ${C.border}`, flex: 1, minWidth: 170, transition: "border-color 0.2s" }}
     onMouseEnter={e => e.currentTarget.style.borderColor = color} onMouseLeave={e => e.currentTarget.style.borderColor = C.border}>
-    <div style={{ fontSize: 10, color: C.textMute, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 700, marginBottom: 10, display: "flex", alignItems: "center" }}>
+    <div style={{ fontSize: 11, color: C.textMute, letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center" }}>
       {label}{tip && <InfoTip text={tip} />}
     </div>
-    <div style={{ fontSize: 26, fontWeight: 800, color, letterSpacing: -1 }}>{value}</div>
-    {sub && <div style={{ fontSize: 11, color: C.textMute, marginTop: 6 }}>{sub}</div>}
+    <div style={{ fontSize: 32, fontWeight: 800, color, letterSpacing: -1 }}>{value}</div>
+    {sub && <div style={{ fontSize: 12, color: C.textMute, marginTop: 8 }}>{sub}</div>}
   </div>
 );
 const Crd = ({ children, style = {}, title, badge, tip }) => (
@@ -382,10 +382,10 @@ export default function Dashboard() {
         <KPI label="GA4 세션" value={TGa4.sessions.toLocaleString()} sub={`${TGa4.users}명 방문`} color={C.ga4} tip="웹사이트 방문 횟수입니다. 한 사용자가 여러 세션을 가질 수 있습니다. 30분 이상 비활성 시 새 세션으로 집계됩니다." />
         <KPI label="전환" value={TGa4.conv.toString()} sub={`전환율 ${TGa4.sessions > 0 ? (TGa4.conv/TGa4.sessions*100).toFixed(1) : 0}%`} color={C.up} tip="GA4에서 설정한 목표 행동(지원서 제출, 버튼 클릭 등)을 완료한 횟수입니다. 전환율 = 전환수 ÷ 세션수." />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 14, marginBottom: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 14, marginBottom: 14 }}>
         <Crd title="플랫폼별 지출" tip="LinkedIn과 Meta 각각의 광고비 비중입니다. 어느 플랫폼에 예산이 더 집중되었는지 확인할 수 있습니다.">
-          <ResponsiveContainer width="100%" height={190}>
-            <PieChart><Pie data={[{ name: "LinkedIn", value: TLi.spend },{ name: "Meta", value: TMeta.spend }]} cx="50%" cy="50%" innerRadius={48} outerRadius={74} dataKey="value" stroke="none">
+          <ResponsiveContainer width="100%" height={240}>
+            <PieChart><Pie data={[{ name: "LinkedIn", value: TLi.spend },{ name: "Meta", value: TMeta.spend }]} cx="50%" cy="50%" innerRadius={58} outerRadius={90} dataKey="value" stroke="none">
               <Cell fill={C.linkedin} /><Cell fill={C.meta} />
             </Pie><Tooltip {...TTC} formatter={v => `$${v.toFixed(2)}`} /></PieChart>
           </ResponsiveContainer>
@@ -395,44 +395,44 @@ export default function Dashboard() {
           </div>
         </Crd>
         <Crd title="광고 세트별 지출 비교" badge={{ text: "USD", bg: C.accentSoft, color: C.accent }} tip="각 광고 세트(타겟 직군)별로 LinkedIn과 Meta에서 얼마나 지출했는지 비교합니다. 막대가 길수록 지출이 많습니다.">
-          <ResponsiveContainer width="100%" height={210}>
+          <ResponsiveContainer width="100%" height={260}>
             <BarChart data={adSets.map(d => ({ name: short(d.name), LinkedIn: d.li.spend, Meta: d.meta ? d.meta.spend : 0 }))} layout="vertical" margin={{ left: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
               <XAxis type="number" tick={{ fill: C.textMute, fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis dataKey="name" type="category" tick={{ fill: C.textSec, fontSize: 11 }} width={65} axisLine={false} tickLine={false} />
               <Tooltip {...TTC} formatter={v => `$${v.toFixed(2)}`} />
-              <Bar dataKey="LinkedIn" fill={C.linkedin} radius={[0,4,4,0]} barSize={10} />
-              <Bar dataKey="Meta" fill={C.meta} radius={[0,4,4,0]} barSize={10} />
+              <Bar dataKey="LinkedIn" fill={C.linkedin} radius={[0,4,4,0]} barSize={14} />
+              <Bar dataKey="Meta" fill={C.meta} radius={[0,4,4,0]} barSize={14} />
             </BarChart>
           </ResponsiveContainer>
         </Crd>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <Crd title="광고 세트별 CTR 비교" badge={{ text: "%", bg: C.upSoft, color: C.up }} tip="CTR(Click-Through Rate) = 클릭수 ÷ 노출수. 광고를 본 사람 중 몇 %가 클릭했는지를 나타냅니다. 높을수록 광고 소재가 효과적입니다.">
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={280}>
             <BarChart data={adSets.filter(d => d.meta).map(d => ({ name: short(d.name), LinkedIn: d.li.ctr, Meta: d.meta.ctr }))}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} vertical={false} />
-              <XAxis dataKey="name" tick={{ fill: C.textMute, fontSize: 10 }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="name" tick={{ fill: C.textMute, fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: C.textMute, fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...TTC} formatter={v => `${v.toFixed(2)}%`} />
-              <Bar dataKey="LinkedIn" fill={C.linkedin} radius={[4,4,0,0]} barSize={18} />
-              <Bar dataKey="Meta" fill={C.meta} radius={[4,4,0,0]} barSize={18} />
+              <Bar dataKey="LinkedIn" fill={C.linkedin} radius={[4,4,0,0]} barSize={24} />
+              <Bar dataKey="Meta" fill={C.meta} radius={[4,4,0,0]} barSize={24} />
             </BarChart>
           </ResponsiveContainer>
         </Crd>
         <Crd title="전체 퍼널 (광고 → 전환)" badge={{ text: "FULL FUNNEL", bg: C.warnSoft, color: C.warn }} tip="광고 노출부터 최종 전환까지의 단계별 수치입니다. 각 단계에서 얼마나 이탈하는지 확인하여 병목 구간을 파악할 수 있습니다.">
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={280}>
             <BarChart data={[
               { stage: "노출", value: totalImp },{ stage: "클릭", value: totalClick },
               { stage: "링크클릭", value: TLi.click + TMeta.link },{ stage: "LP조회", value: TLi.lp + TMeta.lp },
               { stage: "GA4 세션", value: TGa4.sessions },{ stage: "전환", value: TGa4.conv },
             ]}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} vertical={false} />
-              <XAxis dataKey="stage" tick={{ fill: C.textMute, fontSize: 10 }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="stage" tick={{ fill: C.textMute, fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: C.textMute, fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...TTC} />
-              <Bar dataKey="value" name="수치" radius={[6,6,0,0]} barSize={32}
-                label={{ position: "top", fill: C.textSec, fontSize: 10, fontWeight: 600, formatter: (v) => v >= 1000 ? `${(v/1000).toFixed(1)}K` : v }}>
+              <Bar dataKey="value" name="수치" radius={[6,6,0,0]} barSize={44}
+                label={{ position: "top", fill: C.textSec, fontSize: 11, fontWeight: 600, formatter: (v) => v >= 1000 ? `${(v/1000).toFixed(1)}K` : v }}>
                 {[C.textMute, C.accent, C.meta, C.linkedin, C.ga4, C.up].map((c,i) => <Cell key={i} fill={c} />)}
               </Bar>
             </BarChart>
@@ -501,9 +501,9 @@ export default function Dashboard() {
       </Crd>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <Crd title="성과 레이더 (CTR)" tip="각 광고 세트의 CTR을 레이더 형태로 비교합니다. 면적이 넓을수록 전반적으로 CTR이 높습니다. 플랫폼 간 강점이 다른 세트를 한눈에 파악할 수 있습니다.">
-          <ResponsiveContainer width="100%" height={260}>
+          <ResponsiveContainer width="100%" height={320}>
             <RadarChart data={adSets.filter(d => d.meta).map(d => ({ name: short(d.name), "Meta CTR": d.meta.ctr, "LinkedIn CTR": d.li.ctr }))}>
-              <PolarGrid stroke={C.border} /><PolarAngleAxis dataKey="name" tick={{ fill: C.textSec, fontSize: 10 }} />
+              <PolarGrid stroke={C.border} /><PolarAngleAxis dataKey="name" tick={{ fill: C.textSec, fontSize: 11 }} />
               <PolarRadiusAxis tick={{ fill: C.textMute, fontSize: 9 }} />
               <Radar name="Meta CTR" dataKey="Meta CTR" stroke={C.meta} fill={C.meta} fillOpacity={0.12} strokeWidth={2} />
               <Radar name="LinkedIn CTR" dataKey="LinkedIn CTR" stroke={C.linkedin} fill={C.linkedin} fillOpacity={0.12} strokeWidth={2} />
@@ -512,14 +512,14 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </Crd>
         <Crd title="CPC 비교 (USD)" badge={{ text: "낮을수록 효율적", bg: C.upSoft, color: C.up }} tip="CPC(Cost Per Click)는 클릭 1회당 비용입니다. 막대가 짧을수록 같은 예산으로 더 많은 클릭을 얻을 수 있어 효율적입니다.">
-          <ResponsiveContainer width="100%" height={260}>
+          <ResponsiveContainer width="100%" height={320}>
             <BarChart data={adSets.map(d => ({ name: short(d.name), LinkedIn: d.li.cpc, Meta: d.meta ? d.meta.cpc : 0 }))}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} vertical={false} />
-              <XAxis dataKey="name" tick={{ fill: C.textMute, fontSize: 10 }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="name" tick={{ fill: C.textMute, fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: C.textMute, fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip {...TTC} formatter={v => `$${v.toFixed(3)}`} />
-              <Bar dataKey="LinkedIn" fill={C.linkedin} radius={[4,4,0,0]} barSize={16} />
-              <Bar dataKey="Meta" fill={C.meta} radius={[4,4,0,0]} barSize={16} />
+              <Bar dataKey="LinkedIn" fill={C.linkedin} radius={[4,4,0,0]} barSize={22} />
+              <Bar dataKey="Meta" fill={C.meta} radius={[4,4,0,0]} barSize={22} />
             </BarChart>
           </ResponsiveContainer>
         </Crd>
@@ -542,10 +542,10 @@ export default function Dashboard() {
           <KPI label="평균 체류시간" value={`${Math.floor(ad/60)}분 ${Math.round(ad%60)}초`} color={C.up} tip="사용자가 사이트에 머문 평균 시간입니다. 길수록 콘텐츠에 관심을 보인다는 의미입니다." />
           <KPI label="전환" value={tc.toString()} sub={`전환율 ${(tc/ts*100).toFixed(1)}%`} color={C.up} tip="GA4에서 설정한 전환 이벤트(지원서 제출 등)가 발생한 횟수입니다." />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 14, marginBottom: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 14, marginBottom: 14 }}>
           <Crd title="트래픽 소스 비중" tip="어떤 경로로 사이트에 유입되었는지 비율을 보여줍니다. 광고(paid)와 자연유입(organic)의 비중을 비교할 수 있습니다.">
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart><Pie data={ga4Data.map(d => ({ name: d.label, value: d.sessions }))} cx="50%" cy="50%" innerRadius={42} outerRadius={72} dataKey="value" stroke="none">
+            <ResponsiveContainer width="100%" height={240}>
+              <PieChart><Pie data={ga4Data.map(d => ({ name: d.label, value: d.sessions }))} cx="50%" cy="50%" innerRadius={50} outerRadius={85} dataKey="value" stroke="none">
                 {ga4Data.map((_,i) => <Cell key={i} fill={colors[i % colors.length]} />)}
               </Pie><Tooltip {...TTC} /></PieChart>
             </ResponsiveContainer>
@@ -558,15 +558,15 @@ export default function Dashboard() {
             </div>
           </Crd>
           <Crd title="소스별 세션 & 이탈률" tip="각 유입 소스별 세션수(막대)와 이탈률(빨간 선)을 함께 봅니다. 세션은 많지만 이탈률이 높으면 랜딩페이지 개선이 필요합니다.">
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={280}>
               <ComposedChart data={ga4Data.map(d => ({ name: d.label, 세션: d.sessions, 사용자: d.users, 이탈률: d.bounce }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} vertical={false} />
-                <XAxis dataKey="name" tick={{ fill: C.textMute, fontSize: 10 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="name" tick={{ fill: C.textMute, fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis yAxisId="left" tick={{ fill: C.textMute, fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis yAxisId="right" orientation="right" tick={{ fill: C.textMute, fontSize: 10 }} axisLine={false} tickLine={false} domain={[0,70]} />
                 <Tooltip {...TTC} /><Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar yAxisId="left" dataKey="세션" fill={C.ga4} radius={[4,4,0,0]} barSize={20} />
-                <Bar yAxisId="left" dataKey="사용자" fill={C.ga4+"66"} radius={[4,4,0,0]} barSize={20} />
+                <Bar yAxisId="left" dataKey="세션" fill={C.ga4} radius={[4,4,0,0]} barSize={28} />
+                <Bar yAxisId="left" dataKey="사용자" fill={C.ga4+"66"} radius={[4,4,0,0]} barSize={28} />
                 <Line yAxisId="right" type="monotone" dataKey="이탈률" stroke={C.down} strokeWidth={2} dot={{ r: 4, fill: C.down }} />
               </ComposedChart>
             </ResponsiveContainer>
@@ -597,23 +597,23 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "'Outfit', 'Pretendard', -apple-system, sans-serif" }}>
+    <div style={{ background: C.bg, minHeight: "100vh", width: "100vw", maxWidth: "100vw", overflow: "hidden", color: C.text, fontFamily: "'Outfit', 'Pretendard', -apple-system, sans-serif" }}>
       <GlobalTooltip />
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
-      <div style={{ width: "100%", margin: "0 auto", padding: "20px 40px 40px", boxSizing: "border-box" }}>
+      <div style={{ width: "100vw", maxWidth: "100vw", margin: 0, padding: "20px 48px 40px", boxSizing: "border-box" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22, paddingBottom: 18, borderBottom: `1px solid ${C.border}`, flexWrap: "wrap", gap: 12 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
               <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(135deg, ${C.accent}, ${C.meta})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#fff" }}>A</div>
-              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: -0.5 }}>AI Impact Maker <span style={{ color: C.textMute, fontWeight: 400, fontSize: 14 }}>대시보드</span></h1>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>AI Impact Maker <span style={{ color: C.textMute, fontWeight: 400, fontSize: 16 }}>대시보드</span></h1>
             </div>
             <div style={{ fontSize: 11, color: C.textMute, marginLeft: 42 }}>팀스파르타 · LinkedIn {lastUpd.li} / Meta {lastUpd.meta} / GA4 {lastUpd.ga4}</div>
           </div>
           <div style={{ display: "flex", gap: 3, background: C.surface, borderRadius: 10, padding: 3, border: `1px solid ${C.border}` }}>
             {[["종합 대시보드",C.accent],["광고 성과 상세",C.linkedin],["GA4 웹분석",C.ga4],["데이터 관리","#FF6B9D"]].map(([label,color],i) => (
               <button key={i} onClick={() => setPage(i)} style={{
-                padding: "9px 14px", borderRadius: 8, border: "none", cursor: "pointer",
-                fontSize: 11, fontWeight: 700, transition: "all 0.25s",
+                padding: "10px 18px", borderRadius: 8, border: "none", cursor: "pointer",
+                fontSize: 12, fontWeight: 700, transition: "all 0.25s",
                 background: page===i ? color : "transparent", color: page===i ? "#fff" : C.textMute,
               }}>{label}</button>
             ))}
