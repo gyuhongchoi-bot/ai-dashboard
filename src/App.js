@@ -202,6 +202,50 @@ export default function Dashboard() {
   const [csvText, setCsvText] = useState("");
   const [msg, setMsg] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [dragOver, setDragOver] = useState(null); // tracks which source card is being dragged over
+
+  // Read a File object as text and auto-parse + apply for a given source key
+  const handleFileRead = (file, srcKey) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      try {
+        const { headers, rows } = parseCSV(text);
+        if (rows.length === 0) throw new Error("데이터 행이 없습니다");
+        let mapped;
+        if (srcKey === "li") mapped = mapLinkedIn(rows);
+        else if (srcKey === "meta") mapped = mapMeta(rows);
+        else mapped = mapGA4(rows);
+        if (mapped.length === 0) throw new Error("매핑된 데이터가 없습니다. 컬럼명을 확인해주세요.");
+        const now = new Date().toLocaleDateString("ko-KR");
+        if (srcKey === "li") setLiData(mapped);
+        else if (srcKey === "meta") setMetaData(mapped);
+        else setGa4Data(mapped);
+        setLastUpd(prev => ({ ...prev, [srcKey]: now }));
+        setMsg({ type: "success", text: `${file.name} → ${mapped.length}개 데이터가 자동 반영되었습니다!` });
+        setEditSrc(null); setCsvText(""); setPreview(null);
+        setTimeout(() => setMsg(null), 3000);
+      } catch (err) {
+        setMsg({ type: "error", text: `파일 오류: ${err.message}` });
+        setTimeout(() => setMsg(null), 4000);
+      }
+    };
+    reader.onerror = () => {
+      setMsg({ type: "error", text: "파일을 읽을 수 없습니다." });
+      setTimeout(() => setMsg(null), 4000);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleDrop = (e, srcKey) => {
+    e.preventDefault(); e.stopPropagation(); setDragOver(null);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileRead(file, srcKey);
+  };
+
+  const handleDragOver = (e, srcKey) => { e.preventDefault(); e.stopPropagation(); setDragOver(srcKey); };
+  const handleDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setDragOver(null); };
 
   const handleParse = () => {
     try {
@@ -254,29 +298,73 @@ export default function Dashboard() {
 
     return (
       <>
-        <Crd title="데이터 업데이트" badge={{ text: "CSV 직접 붙여넣기", bg: C.accentSoft, color: C.accent }} style={{ marginBottom: 16 }}>
+        {msg && (
+          <div style={{
+            marginBottom: 14, padding: "12px 16px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+            background: msg.type === "success" ? C.upSoft : C.downSoft,
+            color: msg.type === "success" ? C.up : C.down,
+            border: `1px solid ${msg.type === "success" ? C.up : C.down}33`,
+          }}>{msg.text}</div>
+        )}
+
+        <Crd title="데이터 업데이트" badge={{ text: "드래그 앤 드롭 또는 붙여넣기", bg: C.accentSoft, color: C.accent }} style={{ marginBottom: 16 }}>
           <div style={{ fontSize: 12, color: C.textSec, marginBottom: 16, lineHeight: 1.7 }}>
-            광고 관리자 또는 GA4에서 <strong style={{ color: C.text }}>CSV를 다운로드</strong>한 후, 파일을 열어 <strong style={{ color: C.text }}>전체 선택(Ctrl+A) → 복사(Ctrl+C)</strong> 하고 아래 편집기에 <strong style={{ color: C.text }}>붙여넣기(Ctrl+V)</strong> 하면 됩니다.
+            광고 관리자 또는 GA4에서 <strong style={{ color: C.text }}>CSV를 다운로드</strong>한 후, 아래 해당 영역에 <strong style={{ color: C.text }}>파일을 드래그 앤 드롭</strong>하면 자동으로 반영됩니다. 또는 카드를 클릭해서 직접 붙여넣기도 가능합니다.
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-            {sources.map(src => (
-              <div key={src.key} style={{ background: C.surface, borderRadius: 12, border: `1px solid ${editSrc === src.key ? src.color : C.border}`, padding: "18px 16px", transition: "all 0.2s" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                  <span style={{ fontSize: 20 }}>{src.icon}</span>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: src.color }}>{src.label}</span>
+            {sources.map(src => {
+              const isDragTarget = dragOver === src.key;
+              return (
+                <div key={src.key}
+                  onDrop={(e) => handleDrop(e, src.key)}
+                  onDragOver={(e) => handleDragOver(e, src.key)}
+                  onDragLeave={handleDragLeave}
+                  style={{
+                    background: isDragTarget ? `${src.color}15` : C.surface,
+                    borderRadius: 12,
+                    border: `2px ${isDragTarget ? "dashed" : "solid"} ${isDragTarget ? src.color : editSrc === src.key ? src.color : C.border}`,
+                    padding: "18px 16px", transition: "all 0.2s", position: "relative",
+                    transform: isDragTarget ? "scale(1.02)" : "scale(1)",
+                  }}>
+                  {isDragTarget && (
+                    <div style={{
+                      position: "absolute", inset: 0, borderRadius: 10, display: "flex", flexDirection: "column",
+                      alignItems: "center", justifyContent: "center", background: `${src.color}18`, zIndex: 2,
+                    }}>
+                      <span style={{ fontSize: 32, marginBottom: 8 }}>📂</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: src.color }}>여기에 놓으세요</span>
+                    </div>
+                  )}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                    <span style={{ fontSize: 20 }}>{src.icon}</span>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: src.color }}>{src.label}</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: C.textMute, marginBottom: 2 }}>최종 업데이트</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 2 }}>{src.updated}</div>
+                  <div style={{ fontSize: 10, color: C.textMute, marginBottom: 10 }}>{src.count}개 {src.key === "ga4" ? "소스" : "광고세트"}</div>
+
+                  {/* Drop zone hint */}
+                  <div style={{
+                    padding: "14px 10px", borderRadius: 8, border: `1px dashed ${src.color}50`,
+                    background: `${src.color}08`, textAlign: "center", marginBottom: 10, cursor: "pointer",
+                  }}
+                    onClick={() => { const input = document.createElement("input"); input.type = "file"; input.accept = ".csv,.tsv,.txt"; input.onchange = (e) => handleFileRead(e.target.files[0], src.key); input.click(); }}
+                  >
+                    <div style={{ fontSize: 18, marginBottom: 4 }}>📁</div>
+                    <div style={{ fontSize: 11, color: src.color, fontWeight: 600 }}>CSV 파일을 여기에 드래그</div>
+                    <div style={{ fontSize: 10, color: C.textMute, marginTop: 2 }}>또는 클릭하여 파일 선택</div>
+                  </div>
+
+                  <button onClick={() => { setEditSrc(src.key); setCsvText(""); setMsg(null); setPreview(null); }} style={{
+                    width: "100%", padding: "8px 0", borderRadius: 8, border: `1px solid ${src.color}40`, cursor: "pointer",
+                    background: editSrc === src.key ? src.color : "transparent", color: editSrc === src.key ? "#fff" : src.color,
+                    fontSize: 11, fontWeight: 600, transition: "all 0.2s",
+                  }}>
+                    {editSrc === src.key ? "편집 중..." : "직접 붙여넣기"}
+                  </button>
                 </div>
-                <div style={{ fontSize: 10, color: C.textMute, marginBottom: 2 }}>최종 업데이트</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 2 }}>{src.updated}</div>
-                <div style={{ fontSize: 10, color: C.textMute, marginBottom: 14 }}>{src.count}개 {src.key === "ga4" ? "소스" : "광고세트"}</div>
-                <button onClick={() => { setEditSrc(src.key); setCsvText(""); setMsg(null); setPreview(null); }} style={{
-                  width: "100%", padding: "10px 0", borderRadius: 8, border: "none", cursor: "pointer",
-                  background: editSrc === src.key ? src.color : `${src.color}30`, color: editSrc === src.key ? "#fff" : src.color,
-                  fontSize: 12, fontWeight: 700, transition: "all 0.2s",
-                }}>
-                  {editSrc === src.key ? "편집 중..." : "CSV 붙여넣기"}
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Crd>
 
@@ -353,12 +441,11 @@ export default function Dashboard() {
           </Crd>
         )}
 
-        <Crd title="사용 방법" badge={{ text: "3단계", bg: C.warnSoft, color: C.warn }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+        <Crd title="사용 방법" badge={{ text: "2단계", bg: C.warnSoft, color: C.warn }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {[
               { step: "1", title: "CSV 다운로드", desc: "LinkedIn 캠페인 관리자\nMeta 광고 관리자\nGA4 탐색 보고서\n에서 CSV 내보내기", color: C.accent },
-              { step: "2", title: "CSV 열고 복사", desc: "다운받은 CSV 파일을 열고\nCtrl+A (전체 선택)\nCtrl+C (복사)", color: C.warn },
-              { step: "3", title: "붙여넣기 & 적용", desc: "위 편집기에 Ctrl+V\n'파싱하기' → 미리보기 확인\n'대시보드에 적용' 클릭", color: C.up },
+              { step: "2", title: "드래그 앤 드롭", desc: "다운받은 CSV 파일을\n위 해당 영역에 끌어다 놓기\n→ 자동으로 파싱 & 적용!", color: C.up },
             ].map((item, i) => (
               <div key={i} style={{ padding: "16px", borderRadius: 10, background: C.surface, border: `1px solid ${C.border}`, textAlign: "center" }}>
                 <div style={{ width: 32, height: 32, borderRadius: "50%", background: item.color + "20", color: item.color, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 10px", fontSize: 15, fontWeight: 800 }}>{item.step}</div>
