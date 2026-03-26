@@ -421,7 +421,7 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </Crd>
         <Crd title="전체 퍼널 (광고 → 전환)" badge={{ text: "FULL FUNNEL", bg: C.warnSoft, color: C.warn }} tip="광고 노출부터 최종 전환까지의 단계별 수치입니다. 각 단계에서 얼마나 이탈하는지 확인하여 병목 구간을 파악할 수 있습니다.">
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={320}>
             <BarChart data={[
               { stage: "노출", value: totalImp },{ stage: "클릭", value: totalClick },
               { stage: "링크클릭", value: TLi.click + TMeta.link },{ stage: "LP조회", value: TLi.lp + TMeta.lp },
@@ -600,7 +600,7 @@ export default function Dashboard() {
     <div style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "'Outfit', 'Pretendard', -apple-system, sans-serif" }}>
       <GlobalTooltip />
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
-      <div style={{ width: "100%", margin: "0 auto", padding: "20px 20px 40px" }}>
+      <div style={{ width: "100%", margin: "0 auto", padding: "20px 60px 40px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22, paddingBottom: 18, borderBottom: `1px solid ${C.border}`, flexWrap: "wrap", gap: 12 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
