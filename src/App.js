@@ -16,8 +16,25 @@ const C = {
 
 // ── CSV Parser ──
 function parseCSV(text) {
-  const lines = text.trim().split("\n").filter(l => l.trim());
+  // Remove BOM
+  text = text.replace(/^\uFEFF/, "");
+  let lines = text.trim().split("\n").filter(l => l.trim());
   if (lines.length < 2) return { headers: [], rows: [] };
+
+  // LinkedIn CSV has metadata rows before the actual header.
+  // Auto-detect: find the first line that looks like a tab/comma-separated header
+  // by checking for known column names.
+  const knownHeaders = ["광고 세트 이름", "총 지출", "노출수", "클릭", "노출", "세션수", "세션 소스", "지출 금액", "캠페인 이름", "Campaign", "Sessions", "ad_set", "spend", "impressions"];
+  let headerIdx = 0;
+  for (let i = 0; i < Math.min(lines.length, 10); i++) {
+    if (knownHeaders.some(h => lines[i].includes(h))) {
+      headerIdx = i;
+      break;
+    }
+  }
+  lines = lines.slice(headerIdx);
+  if (lines.length < 2) return { headers: [], rows: [] };
+
   const parseLine = (line) => {
     const result = []; let current = ""; let inQuotes = false;
     for (let i = 0; i < line.length; i++) {
@@ -208,9 +225,20 @@ export default function Dashboard() {
   // Read a File object as text and auto-parse + apply for a given source key
   const handleFileRead = (file, srcKey) => {
     if (!file) return;
+    // First try reading as ArrayBuffer to detect UTF-16
     const reader = new FileReader();
     reader.onload = (e) => {
-      const text = e.target.result;
+      let text;
+      const buf = e.target.result;
+      const arr = new Uint8Array(buf);
+      // Detect UTF-16 BOM (FF FE = little-endian, FE FF = big-endian)
+      if ((arr[0] === 0xFF && arr[1] === 0xFE) || (arr[0] === 0xFE && arr[1] === 0xFF)) {
+        const decoder = new TextDecoder("utf-16le");
+        text = decoder.decode(buf);
+      } else {
+        const decoder = new TextDecoder("utf-8");
+        text = decoder.decode(buf);
+      }
       try {
         const { rows } = parseCSV(text);
         if (rows.length === 0) throw new Error("데이터 행이 없습니다");
@@ -236,7 +264,7 @@ export default function Dashboard() {
       setMsg({ type: "error", text: "파일을 읽을 수 없습니다." });
       setTimeout(() => setMsg(null), 4000);
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   };
 
   const handleDrop = (e, srcKey) => {
