@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useCallback } from "react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ComposedChart, Line } from "recharts";
 
@@ -211,7 +212,7 @@ export default function Dashboard() {
     reader.onload = (e) => {
       const text = e.target.result;
       try {
-        const { headers, rows } = parseCSV(text);
+        const { rows } = parseCSV(text);
         if (rows.length === 0) throw new Error("데이터 행이 없습니다");
         let mapped;
         if (srcKey === "li") mapped = mapLinkedIn(rows);
@@ -556,8 +557,8 @@ export default function Dashboard() {
               <span style={{ display: "inline-flex", alignItems: "center" }}>{h}<InfoTip text={tip} /></span>
             </th>
           ))}</tr></thead>
-          <tbody>{filtered.map((d, i) => (<>
-            {(filter === "all" || filter === "linkedin") && <tr key={`li-${i}`} style={{ borderBottom: `1px solid ${C.border}22` }}>
+          <tbody>{filtered.map((d, i) => (<React.Fragment key={i}>
+            {(filter === "all" || filter === "linkedin") && <tr style={{ borderBottom: `1px solid ${C.border}22` }}>
               <td style={{ padding: "10px", color: C.text, fontWeight: 600 }}>{d.name}</td>
               <td style={{ padding: "10px" }}><Bdg p="LinkedIn" /></td>
               <td style={{ padding: "10px", color: C.text, fontWeight: 600 }}>${d.li.spend.toFixed(2)}</td>
@@ -570,7 +571,7 @@ export default function Dashboard() {
               <td style={{ padding: "10px", color: C.textSec }}>{d.li.lp}</td>
               <td style={{ padding: "10px", color: C.textSec }}>{d.li.eng}</td>
             </tr>}
-            {d.meta && (filter === "all" || filter === "meta") && <tr key={`m-${i}`} style={{ borderBottom: `1px solid ${C.border}33`, background: filter === "all" ? C.surface + "60" : "transparent" }}>
+            {d.meta && (filter === "all" || filter === "meta") && <tr style={{ borderBottom: `1px solid ${C.border}33`, background: filter === "all" ? C.surface + "60" : "transparent" }}>
               <td style={{ padding: "10px", color: C.textMute }}>{filter !== "all" ? d.name : ""}</td>
               <td style={{ padding: "10px" }}><Bdg p="Meta" /></td>
               <td style={{ padding: "10px", color: C.text, fontWeight: 600 }}>${d.meta.spend.toFixed(2)}</td>
@@ -583,7 +584,7 @@ export default function Dashboard() {
               <td style={{ padding: "10px", color: C.textSec }}>{d.meta.lp}</td>
               <td style={{ padding: "10px", color: C.textMute }}>—</td>
             </tr>}
-          </>))}</tbody>
+          </React.Fragment>))}</tbody>
         </table>
       </Crd>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
